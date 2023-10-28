@@ -23,32 +23,45 @@ public class CustomerController {
     public static final String CUSTOMER_PATH_ID = CUSTOMER_PATH + "/{id}";
 
     @GetMapping(CUSTOMER_PATH)
-    public List<Customer> getAllCustomers(){
+    public ResponseEntity<List<Customer>> getAllCustomers(){
         log.info("--CustomerController::getAllCustomers--");
-       return customerService.getAllCustomers();
+
+        return ResponseEntity
+               .status(HttpStatus.OK)
+               .body(customerService.getAllCustomers());
     }
 
     @GetMapping(CUSTOMER_PATH_ID)
-    public Customer getCustomerById(@PathVariable("id") UUID id){
+    public ResponseEntity<Customer> getCustomerById(@PathVariable("id") UUID id){
         log.info("--CustomerController::getCustomerById--");
-        return customerService.getCustomerById(id);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(customerService.getCustomerById(id));
     }
 
     @PostMapping(CUSTOMER_PATH)
-    public ResponseEntity createNewCustomer(@RequestBody Customer customer){
-        log.info("--CustomerController::createNewCustomer--");
+    public ResponseEntity<Customer> createNewCustomer(@RequestBody Customer customer){log.info("--CustomerController::createNewCustomer--");
+
         Customer createdCustomer =  customerService.createNewCustomer(customer);
+
         HttpHeaders headers = new HttpHeaders();
         headers.add("location", createdCustomer.getId().toString());
-        return new ResponseEntity(headers,HttpStatus.CREATED);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .headers(headers)
+                .body(createdCustomer);
     }
 
     @PutMapping(CUSTOMER_PATH_ID)
-    public ResponseEntity updateCustomer(@PathVariable("id") UUID id, @RequestBody Customer customer){
+    public ResponseEntity<Customer> updateCustomer(@PathVariable("id") UUID id, @RequestBody Customer customer){
         log.info("--CustomerController::updateCustomer--");
-        Customer customer1 = customerService.updateCustomer(id, customer);
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("updatedCustomer",customer1.toString());
-        return new ResponseEntity(headers, HttpStatus.NO_CONTENT);
+
+        Customer updatedCustomer = customerService.updateCustomer(id, customer);
+
+        return ResponseEntity
+                .status(HttpStatus.ACCEPTED)
+                .body(updatedCustomer);
     }
 }

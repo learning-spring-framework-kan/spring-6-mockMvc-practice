@@ -69,6 +69,7 @@ class CustomerControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.name",is(testCustomer.getName())));
 
+
         verify(customerService).getCustomerById(uuidCaptor.capture());
 
         assertThat(uuidCaptor.getValue()).isEqualTo(testCustomer.getId());
@@ -76,14 +77,15 @@ class CustomerControllerTest {
     }
 
     @Test
-    void createNewCustomer() throws Exception {
+    void testCreateNewCustomer() throws Exception {
+
         testCustomer.setName("newCustomer");
-        Customer created = allCustomers.get(2);
-        given(customerService.createNewCustomer(testCustomer)).willReturn(created);
+        given(customerService.createNewCustomer(any(Customer.class))).willReturn(testCustomer);
 
         mockMvc.perform(post(CustomerController.CUSTOMER_PATH)
                 .content(objectMapper.writeValueAsString(testCustomer))
-                .contentType(MediaType.APPLICATION_JSON));
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.name",is(testCustomer.getName())));
 
         verify(customerService).createNewCustomer(customerCaptor.capture());
 
@@ -93,9 +95,9 @@ class CustomerControllerTest {
     @Test
     void updateCustomer() throws Exception {
 
-        given(customerService.updateCustomer(testCustomer.getId(), testCustomer)).willReturn(testCustomer);
+        given(customerService.updateCustomer(any(UUID.class), any(Customer.class))).willReturn(testCustomer);
 
-        mockMvc.perform(put(CustomerController.CUSTOMER_PATH_ID,testCustomer.getId())
+        mockMvc.perform(put(CustomerController.CUSTOMER_PATH_ID,UUID.randomUUID())
                 .content(objectMapper.writeValueAsString(testCustomer))
                 .contentType(MediaType.APPLICATION_JSON));
 
